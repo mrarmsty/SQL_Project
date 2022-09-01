@@ -1,0 +1,100 @@
+<--
+SQL project on covid data gathered from around the world.
+-->
+
+
+SELECT * FROM CovidDeaths
+WHERE continent is NOT NULL
+ORDER by 3,4
+
+--  We look at the likelihood of dying if you contract covid 19
+ 
+SELECT location,total_cases,total_deaths,population,(total_deaths/total_cases)*100 as deathpercentage
+FROM CovidDeaths
+WHERE location = 'Nigeria'
+ORDER by 1,2
+
+-- We look at the total cases and population
+
+SELECT location,total_cases,date,population,(total_cases/population)*100 as infection_percentage
+FROM CovidDeaths
+ORDER by 1,2
+
+-- We look at countries with highest infection rate compared to population
+
+SELECT location,max(total_cases) Total_case_count,population,max(total_cases/population)*100 as infection_percentage
+FROM CovidDeaths
+GROUP by population,location
+ORDER by infection_percentage DESC
+
+
+-- showing countries with highest death count per population
+
+SELECT location,max(total_deaths) as Total_death_count
+FROM CovidDeaths
+WHERE continent is NOT NULL
+-- and location = 'Nigeria'
+GROUP by location
+ORDER by total_deaths DESC
+
+-- LET'S BREAK THIS DATASET UP BY CONTINENT
+
+SELECT location,max(total_deaths) as Total_death_count
+FROM CovidDeaths
+WHERE continent is NULL
+-- and location = 'Nigeria'
+GROUP by location
+ORDER by total_deaths DESC
+
+
+SELECT continent,max(total_deaths) as Total_death_count
+FROM CovidDeaths
+WHERE continent is NOT NULL
+-- and location = 'Nigeria'
+GROUP by continent
+ORDER by total_deaths DESC
+
+SELECT date, sum(new_cases) as total_cases_per_day, sum(new_deaths) as total_deaths_per_day, (sum(new_cases)/sum(new_deaths)) *100 as death_percent_per_day
+FROM CovidDeaths
+WHERE continent is not NULL
+GROUP by date
+ORDER by death_percent_per_day desc
+
+-- looking at total population and total vaccination
+
+SELECT dea.location, dea.continent,dea.date,dea.population,vac.new_vaccinations
+FROM CovidDeaths dea
+JOIN CovidVaccinations vac
+on dea.location = vac.location
+and dea.date = vac.date
+WHERE dea.continent is NOT NULL
+ORDER by vac.new_vaccinations DESC
+
+-- country and continent with the most vaccinations
+
+SELECT dea.location, dea.continent,dea.date,dea.population,vac.new_vaccinations,vac.total_vaccinations
+FROM CovidDeaths dea
+JOIN CovidVaccinations vac
+on dea.location = vac.location
+and dea.date = vac.date
+WHERE dea.continent is NOT NULL
+GROUP by dea.location,dea.date
+ORDER by vac.total_vaccinations DESC
+
+-- we look at life expectancy by continent
+
+SELECT dea.continent,dea.date,dea.population,dea.location,avg(vac.life_expectancy) as average_life_span
+FROM CovidDeaths dea
+JOIN CovidVaccinations vac
+on dea.location = vac.location
+and dea.date = vac.date
+WHERE dea.continent is not NULL
+GROUP by dea.continent
+ORDER by average_life_span DESC
+
+SELECT location,max(total_deaths) as Total_death_count
+FROM CovidDeaths
+WHERE continent is NULL
+-- and location = 'Nigeria'
+GROUP by location
+ORDER by total_deaths DESC
